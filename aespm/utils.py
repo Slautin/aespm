@@ -13,12 +13,12 @@ if platform.system() == 'Windows':
     read_out_buffer = os.path.join(buffer_path, 'readout.txt')
     bash_buffer = os.path.join(buffer_path, 'SendToIgor.bat')
     
-    if os.path.exists("C:\\AsylumResearch\\v19"):
-        exe_path = "C:\\AsylumResearch\\v19\\RealTime\\Igor Pro Folder\\Igor.exe"
-    elif os.path.exists("C:\\AsylumResearch\\v18"):
-        exe_path = "C:\\AsylumResearch\\v18\\RealTime\\Igor Pro Folder\\Igor.exe"
-    else:
-        exe_path = ""
+    if os.path.exists("C:\\Asylum Research\\v19"):
+        exe_path = "C:\\Asylum Research\\v19\\RealTime\\Igor Pro Folder\\Igor.exe"
+    elif os.path.exists("C:\\Asylum Research\\v18"):
+        exe_path = "C:\\Asylum Research\\v18\\RealTime\\Igor Pro Folder\\Igor.exe"
+    elif os.path.exists("C:\\Asylum Research\\v15"):
+        exe_path = "C:\\Asylum Research\\v15\\RealTime\\Igor Pro Folder\\Igor.exe"
 
 
 class SharedInfo:
