@@ -40,8 +40,8 @@ if platform.system() == 'Windows':
 					fopen.write('"C:\\Asylum Research\\v17\\RealTime\\Igor Pro Folder\\Igor.exe" "{}"'.format(os.path.join(buffer_path, 'ToIgor.arcmd')))
 				elif os.path.exists("C:\\Asylum Research\\v16"):
 					fopen.write('"C:\\Asylum Research\\v16\\RealTime\\Igor Pro Folder\\Igor.exe" "{}"'.format(os.path.join(buffer_path, 'ToIgor.arcmd')))
-				elif os.path.exists("C:\\Asylum Research\\v15"):
-					fopen.write('"C:\\Asylum Research\\v15\\RealTime\\Igor Pro Folder\\Igor.exe" "{}"'.format(os.path.join(buffer_path, 'ToIgor.arcmd')))
+				elif os.path.exists("C:\\Asylum\\Igor Pro Folder AR15"):
+					fopen.write('"C:\\Asylum\\Igor Pro Folder AR15\\Igor.exe" "{}"'.format(os.path.join(buffer_path, 'ToIgor.arcmd')))
 				elif os.path.exists("C:\\Asylum Research\\v14"):
 					fopen.write('"C:\\Asylum Research\\v14\\RealTime\\Igor Pro Folder\\Igor.exe" "{}"'.format(os.path.join(buffer_path, 'ToIgor.arcmd')))
 				elif os.path.exists("C:\\Asylum Research\\v13"):
