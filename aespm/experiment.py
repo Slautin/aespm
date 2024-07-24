@@ -307,7 +307,7 @@ def write_spm(commands, connection=None, wait=0.35):
         file.writelines(commands)
         file.close()
 
-        p = Popen(_bash_buffer, shell=True)
+        p = Popen(_bash_buffer)
         p.wait()
         time.sleep(wait)
     else:
