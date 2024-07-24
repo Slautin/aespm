@@ -30,7 +30,7 @@ else:
     _command_buffer = r"C:\Users\Asylum User\Documents\buffer\ToIgor.arcmd"
     _read_out_buffer = r"C:\Users\Asylum User\Documents\buffer\readout.txt"
     _bash_buffer = r"C:\Users\Asylum User\Documents\buffer\SendToIgor.bat"
-    _exe_path = r"C:\AsylumResearch\v19\RealTime\Igor Pro Folder\Igor.exe"
+    _exe_path = r"C:\Asylum Research\v15\RealTime\Igor Pro Folder\Igor.exe"
 
 class Experiment(object):
     '''
@@ -307,7 +307,7 @@ def write_spm(commands, connection=None, wait=0.35):
         file.writelines(commands)
         file.close()
 
-        p = Popen(_bash_buffer)
+        p = Popen(_bash_buffer, shell=True)
         p.wait()
         time.sleep(wait)
     else:
