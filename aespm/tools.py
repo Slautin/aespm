@@ -68,6 +68,7 @@ class IBWData(object):
             self.mode = "Spec"
             try:
                 self._load_ss()
+                self._calculate_real_ss_params()
             except IndexError:
                 pass
         # Image files:
@@ -148,6 +149,13 @@ class IBWData(object):
             phase2 = self.data[4]
             freq = self.data[5]
 
+        #We need to have it without offset correction for drive parameter calculations
+        phase1 = self._correct_phase_wrapping(phase1, offset_correction=False)
+        phase2 = self._correct_phase_wrapping(phase2, offset_correction=False)
+
+        a_dr, ph_dr, q = self._calc_drive_params(amp, amp, phase1, phase2, freq, 10e3)
+
+        phase_dr = self._correct_phase_wrapping(ph_dr)
         phase1 = self._correct_phase_wrapping(phase1)
         phase2 = self._correct_phase_wrapping(phase2)
 
@@ -167,11 +175,20 @@ class IBWData(object):
         phase2_on = np.zeros(length)
         phase2_off = np.zeros(length)
 
+        phase_dr_on = np.zeros(length)
+        phase_dr_off = np.zeros(length)
+
         amp_on = np.zeros(length)
         amp_off = np.zeros(length)
 
+        amp_dr_on = np.zeros(length)
+        amp_dr_off = np.zeros(length)
+
         freq_on = np.zeros(length)
         freq_off = np.zeros(length)
+
+        q_on = np.zeros(length)
+        q_off = np.zeros(length)
 
         for i in range(length * 2-1):
             if i % 2 == 0: # bias off
@@ -180,12 +197,21 @@ class IBWData(object):
                 amp_off[i//2] = np.mean(amp[index_bp[i]:index_bp[i+1]])
                 freq_off[i//2] = np.mean(freq[index_bp[i]:index_bp[i+1]])
                 bias_off[i//2] = np.mean(bias[index_bp[i]:index_bp[i+1]])
+
+                phase_dr_off[i // 2] = np.mean(phase_dr[index_bp[i]:index_bp[i + 1]])
+                q_off[i // 2] = np.mean(q[index_bp[i]:index_bp[i + 1]])
+                amp_dr_off[i // 2] = np.mean(a_dr[index_bp[i]:index_bp[i + 1]])
             else:
                 bias_on[i//2] = np.mean(bias[index_bp[i]:index_bp[i+1]])
                 phase1_on[i//2] = np.mean(phase1[index_bp[i]:index_bp[i+1]])
                 phase2_on[i//2] = np.mean(phase2[index_bp[i]:index_bp[i+1]])
                 amp_on[i//2] = np.mean(amp[index_bp[i]:index_bp[i+1]])
                 freq_on[i//2] = np.mean(freq[index_bp[i]:index_bp[i+1]])
+
+                phase_dr_on[i // 2] = np.mean(phase_dr[index_bp[i]:index_bp[i + 1]])
+                q_on[i // 2] = np.mean(q[index_bp[i]:index_bp[i + 1]])
+                amp_dr_on[i // 2] = np.mean(a_dr[index_bp[i]:index_bp[i + 1]])
+
         self.bias = bias_on[1:]
         self.phase1_on = phase1_on[1:]
         self.phase1_off = phase1_off[1:]
@@ -193,12 +219,19 @@ class IBWData(object):
         self.phase2_off = phase2_off[1:]
         self.freq_on = freq_on[1:]
         self.freq_off = freq_off[1:]
-        self.amp_on = amp_on[1:] * np.cos(phase2_off[1:]/180*np.pi)
+        self.amp_on = amp_on[1:] * np.cos(phase1_on[1:] / 180 * np.pi)
         self.amp_off = amp_off[1:] * np.cos(phase1_off[1:]/180*np.pi)
+
+        self.amp_dr_on = amp_dr_on[1:] * np.cos(phase_dr_on[1:] / 180 * np.pi)
+        self.amp_dr_off = amp_dr_off[1:] * np.cos(phase_dr_off[1:] / 180 * np.pi)
+        self.phase_dr_on = phase_dr_on[1:]
+        self.phase_dr_off = phase_dr_off[1:]
+        self.q_on = q_on[1:]
+        self.q_off = q_off[1:]
 
         # return bias[1:], amp_off[1:], phase1_off[1:], phase2_off[1:]
 
-    def _correct_phase_wrapping(self, ph, lower=-90, upper=270):
+    def _correct_phase_wrapping(self, ph, lower=-90, upper=270, offset_correction=True):
         '''
         Correct the phase wrapping in Jupiter.
         
@@ -210,7 +243,10 @@ class IBWData(object):
             ph_shift - Array: phase with wrapping corrected
         '''
         # Use the phase value measured at last pixel as the offset in the lock-in
-        ph_shift = ph - ph[-1]
+        if offset_correction:
+            ph_shift = ph - ph[-1]
+        else:
+            ph_shift = ph
 
         index_upper = np.where(ph_shift > upper)
         index_lower = np.where(ph_shift < lower)
@@ -218,6 +254,64 @@ class IBWData(object):
         ph_shift[index_lower] += 360
 
         return ph_shift
+
+    def _calculate_real_ss_params(self, df=10e3):
+        '''
+        Calculate real DART parameters in ss curves.
+
+        Input:
+            df - DART frequency window
+        Output:
+
+        '''
+        self.amp_drive_on, self.ph_drive_on, self.q_on = self._calc_drive_params(self.amp_on,
+                                                                                 self.amp_on,
+                                                                                 self.phase1_on,
+                                                                                 self.phase2_on,
+                                                                                 self.freq_on,
+                                                                                 df,
+                                                                                )
+        self.amp_drive_off, self.ph_drive_off, self.q_off = self._calc_drive_params(self.amp_off,
+                                                                                    self.amp_off,
+                                                                                    self.phase1_off,
+                                                                                    self.phase2_off,
+                                                                                    self.freq_off,
+                                                                                    df,
+                                                                                    )
+
+    @staticmethod
+    def _calc_drive_params(_a1, _a2, _ph1, _ph2, _fc, _df):
+        '''
+        Calculate real Dart parameters from the observables.
+
+        Input:
+            _a1  - amplitude 1
+            _a2  - amplitude 2
+            _ph1 - phase 1
+            _ph2 - phase 2
+            _fc  - resonance frequency
+            _df  - difference between freq 2 and freq 1
+        Output:
+            _a_drive  - drive amplitude
+            _ph_drive - resonance phase
+            _q        - resonanse quality factor
+        '''
+        _dph = _ph2 - _ph1
+        _f1 = _fc - _df / 2
+        _f2 = _fc + _df / 2
+
+        _om = _f1 * _a1 / (_f2 * _a2)
+        _fi = np.tan(_dph)
+
+        _x1 = -(1 - np.sign(_fi) * np.sqrt(1 + np.square(_fi)) / _om) / (_fi)
+        _x2 = (1 - np.sign(_fi) * np.sqrt(1 + np.square(_fi)) * _om) / (_fi)
+
+        _q = np.sqrt(_f1 * _f2 * (_f2 * _x1 - _f1 * _x2) * (_f1 * _x1 - _f2 * _x2)) / (
+                    np.square(_f2) - np.square(_f1))
+        _a_drive = _a1 * np.sqrt(np.square(np.square(_fc) - np.square(_f1)) + (_fc * _f1 / _q)) / np.square(_fc)
+        _ph_drive = _ph1 - np.arctan(_fc * _f1 / (_q * (np.square(_fc) - np.square(_f1))))
+
+        return _a_drive, _ph_drive, _q
 
 # Function to read and plot all the ibw files
 
