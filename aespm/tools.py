@@ -85,6 +85,7 @@ class IBWData(object):
                         if len(self.channels) > 4:
                             self.mode = "DART Mode"
                             self.channels = ['Height', 'Amplitude1', 'Amplitude2', 'Phase1', 'Phase2', 'Frequency']
+                            self._calculate_real_im_params()
                         else:
                             self.channels = ['Height', 'Amplitude', 'Deflection', 'Phase']
                 except IndexError:
@@ -293,11 +294,11 @@ class IBWData(object):
         Output:
 
         '''
-        _a1  = self.channels[1]
-        _a2  = self.channels[2]
-        _ph1 = self.channels[3]
-        _ph2 = self.channels[4]
-        _fr  = self.channels[-1]
+        _a1  = self.data[1]
+        _a2  = self.data[2]
+        _ph1 = self.data[3]
+        _ph2 = self.data[4]
+        _fr  = self.data[-1]
         self.amp_drive, self.ph_drive, self.q = self._calc_drive_params(_a1,
                                                                         _a2,
                                                                         _ph1,
