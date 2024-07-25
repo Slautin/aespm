@@ -219,11 +219,16 @@ class IBWData(object):
         self.phase2_off = phase2_off[1:]
         self.freq_on = freq_on[1:]
         self.freq_off = freq_off[1:]
-        self.amp_on = amp_on[1:] * np.cos(phase1_on[1:] / 180 * np.pi)
-        self.amp_off = amp_off[1:] * np.cos(phase1_off[1:]/180*np.pi)
+        self.amp_on = amp_on[1:]
+        self.amp_off = amp_off[1:]
+        self.x_on    = amp_on[1:] * np.cos(phase1_on[1:] / 180 * np.pi)
+        self.x_off   = amp_off[1:] * np.cos(phase1_off[1:]/180*np.pi)
 
-        self.amp_dr_on = amp_dr_on[1:] * np.cos(phase_dr_on[1:] / 180 * np.pi)
-        self.amp_dr_off = amp_dr_off[1:] * np.cos(phase_dr_off[1:] / 180 * np.pi)
+
+        self.amp_dr_on = amp_dr_on[1:] #* np.cos(phase_dr_on[1:] / 180 * np.pi)
+        self.amp_dr_off = amp_dr_off[1:]# * np.cos(phase_dr_off[1:] / 180 * np.pi)
+        self.x_dr_on = amp_dr_on[1:] * np.cos(phase_dr_on[1:] / 180 * np.pi)
+        self.x_dr_off = amp_dr_off[1:] * np.cos(phase_dr_off[1:] / 180 * np.pi)
         self.phase_dr_on = phase_dr_on[1:]
         self.phase_dr_off = phase_dr_off[1:]
         self.q_on = q_on[1:]
