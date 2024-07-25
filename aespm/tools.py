@@ -296,6 +296,8 @@ class IBWData(object):
             _ph_drive - resonance phase
             _q        - resonanse quality factor
         '''
+
+        epsilon = 1e-10 #a small adding for calculation stability
         _dph = _ph2 - _ph1
         _f1 = _fc - _df / 2
         _f2 = _fc + _df / 2
@@ -303,13 +305,13 @@ class IBWData(object):
         _om = _f1 * _a1 / (_f2 * _a2)
         _fi = np.tan(_dph)
 
-        _x1 = -(1 - np.sign(_fi) * np.sqrt(1 + np.square(_fi)) / _om) / (_fi+1e-9)
-        _x2 = (1 - np.sign(_fi) * np.sqrt(1 + np.square(_fi)) * _om) / (_fi+1e-9)
+        _x1 = -(1 - np.sign(_fi) * np.sqrt(1 + np.square(_fi)) / _om) / (_fi+epsilon)
+        _x2 = (1 - np.sign(_fi) * np.sqrt(1 + np.square(_fi)) * _om) / (_fi+epsilon)
 
         _q = np.sqrt(_f1 * _f2 * (_f2 * _x1 - _f1 * _x2) * (_f1 * _x1 - _f2 * _x2)) / (
-                    np.square(_f2) - np.square(_f1))
+                    np.square(_f2) - np.square(_f1)+epsilon)
         _a_drive = _a1 * np.sqrt(np.square(np.square(_fc) - np.square(_f1)) + (_fc * _f1 / _q)) / np.square(_fc)
-        _ph_drive = _ph1 - np.arctan(_fc * _f1 / (_q * (np.square(_fc) - np.square(_f1))))
+        _ph_drive = _ph1 - np.arctan(_fc * _f1 / (_q * (np.square(_fc) - np.square(_f1))+epsilon))
 
         return _a_drive, _ph_drive, _q
 
