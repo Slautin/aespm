@@ -132,6 +132,7 @@ class IBWData(object):
 
         # Load the channel names
         self.channels = [self.header.get(f'Channel{i+1}DataType', 'Unknown') for i in range(np.shape(self.data)[0])]
+        self._calculate_real_im_params()
 
     def _load_ss(self, nan=True):
 
@@ -283,6 +284,26 @@ class IBWData(object):
                                                                                     self.freq_off,
                                                                                     df,
                                                                                     )
+    def _calculate_real_im_params(self, df=10e3):
+        '''
+        Calculate real DART parameters in ss curves.
+
+        Input:
+            df - DART frequency window
+        Output:
+
+        '''
+        _a1  = self.channels['Amplitude1']
+        _a2  = self.channels['Amplitude2']
+        _ph1 = self.channels['Phase1']
+        _ph2 = self.channels['Phase2']
+        _fr  = self.channels['Frequency']
+        self.amp_drive, self.ph_drive, self.q = self._calc_drive_params(_a1,
+                                                                        _a2,
+                                                                        _ph1,
+                                                                        _ph2,
+                                                                        _fr,
+                                                                        df,)
 
     @staticmethod
     def _calc_drive_params(_a1, _a2, _ph1, _ph2, _fc, _df):
