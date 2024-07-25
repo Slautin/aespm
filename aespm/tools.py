@@ -337,6 +337,7 @@ class IBWData(object):
 
         _q = np.sqrt(_f1 * _f2 * (_f2 * _x1 - _f1 * _x2) * (_f1 * _x1 - _f2 * _x2)) / (
                     np.square(_f2) - np.square(_f1)+epsilon)
+        _q[_q>1000] = 1000
         _a_drive = _a1 * np.sqrt(np.square(np.square(_fc) - np.square(_f1)) + (_fc * _f1 / _q)) / np.square(_fc)
         _ph_drive = _ph1 - np.arctan(_fc * _f1 / (_q * (np.square(_fc) - np.square(_f1))+epsilon))
 
