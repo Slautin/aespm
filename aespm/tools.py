@@ -132,7 +132,7 @@ class IBWData(object):
 
         # Load the channel names
         self.channels = [self.header.get(f'Channel{i+1}DataType', 'Unknown') for i in range(np.shape(self.data)[0])]
-        self._calculate_real_im_params()
+
 
     def _load_ss(self, nan=True):
 
