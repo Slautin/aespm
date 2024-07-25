@@ -293,11 +293,11 @@ class IBWData(object):
         Output:
 
         '''
-        _a1  = self.channels['Amplitude1']
-        _a2  = self.channels['Amplitude2']
-        _ph1 = self.channels['Phase1']
-        _ph2 = self.channels['Phase2']
-        _fr  = self.channels['Frequency']
+        _a1  = self.channels[1]
+        _a2  = self.channels[2]
+        _ph1 = self.channels[3]
+        _ph2 = self.channels[4]
+        _fr  = self.channels[-1]
         self.amp_drive, self.ph_drive, self.q = self._calc_drive_params(_a1,
                                                                         _a2,
                                                                         _ph1,
